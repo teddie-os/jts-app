@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Just Talk Studios</title>
+  <meta name="description" content="Your Just Talk Studios portal: sessions, episodes and reminders.">
+  <meta name="theme-color" content="#0B0B0C">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="JTS">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <iframe id="portal" title="Just Talk Studios portal"
+    src="https://www.justtalkstudios.com/portal"
+    allow="clipboard-read; clipboard-write; fullscreen; autoplay; payment; camera; microphone"></iframe>
+
+  <aside id="bar" hidden>
+    <img src="icons/icon-192.png" alt="" class="mark">
+    <div class="copy">
+      <strong id="bar-title"></strong>
+      <span id="bar-text"></span>
+    </div>
+    <div class="actions">
+      <button id="bar-go" type="button"></button>
+      <button id="bar-later" type="button" class="quiet">Not now</button>
+    </div>
+  </aside>
+
+  <script src="app.js"></script>
+</body>
+</html>
