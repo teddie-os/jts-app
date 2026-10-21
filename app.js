@@ -44,30 +44,39 @@
     return out;
   }
 
+  // The portal lives in the frame. It says "ready" once somebody is signed in; the shell
+  // answers with this device's push address, which teddie keeps against that member.
+  // Only the portal's own origin is spoken to, and only its messages are heard.
+  var PORTAL_ORIGIN = "https://www.justtalkstudios.com";
+  var frame = document.getElementById("portal");
+  var portalReady = false;
+
+  async function handDeviceToPortal() {
+    if (!portalReady || !registration || !frame || !frame.contentWindow) return;
+    if (Notification.permission !== "granted") return;
+    var sub = await registration.pushManager.getSubscription();
+    if (!sub) return;
+    var label = (iOS ? "iPhone or iPad" : /Android/.test(ua) ? "Android" : /Macintosh/.test(ua) ? "Mac" : /Windows/.test(ua) ? "Windows" : "device") + (installed ? " app" : " browser");
+    frame.contentWindow.postMessage({ type: "jts-device", subscription: sub.toJSON(), label: label }, PORTAL_ORIGIN);
+  }
+
+  window.addEventListener("message", function (event) {
+    if (event.origin !== PORTAL_ORIGIN || !event.data || event.data.type !== "jts-portal-ready") return;
+    portalReady = true;
+    handDeviceToPortal();
+  });
+
+  // A reminder tapped on the phone carries the screen it is about; the frame opens there.
+  if (frame && window.location.search.length > 1) {
+    frame.src = PORTAL_ORIGIN + "/portal" + window.location.search + "&app=1";
+  }
+
   async function turnOnReminders() {
     var answer = await Notification.requestPermission();
     if (answer !== "granted") { bar.hidden = true; return; }
-    var sub = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(PUSH_KEY) });
-    showTestCode(sub);
-  }
-
-  // Test build only: until teddie stores subscriptions itself, the code is
-  // copied by hand so a test notification can be sent to this device.
-  function showTestCode(sub) {
-    var code = JSON.stringify(sub);
-    show("testcode", "Reminders are on", "Test build: copy this device's code and paste it in the chat with Claude.", "Copy code", async function () {
-      try {
-        await navigator.clipboard.writeText(code);
-        title.textContent = "Copied";
-        text.textContent = "Paste it in the chat. A test notification is on its way after that.";
-      } catch (e) {
-        title.textContent = "Copy this code";
-        text.innerHTML = "";
-        var c = document.createElement("code");
-        c.textContent = code;
-        text.appendChild(c);
-      }
-    });
+    await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(PUSH_KEY) });
+    await handDeviceToPortal();
+    show("reminders-on", "Reminders are on", "The day before a session, and the moment an episode is ready for you.");
   }
 
   async function decide() {
@@ -87,10 +96,7 @@
     if (Notification.permission === "default") {
       return show("reminders", "Turn on reminders", "We'll let you know the day before a session and when an episode is ready for you.", "Turn on", turnOnReminders);
     }
-    if (Notification.permission === "granted") {
-      var sub = await registration.pushManager.getSubscription();
-      if (sub) showTestCode(sub);
-    }
+    if (Notification.permission === "granted") handDeviceToPortal();
   }
 
   window.addEventListener("beforeinstallprompt", function (e) {

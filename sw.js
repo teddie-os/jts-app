@@ -21,7 +21,12 @@ self.addEventListener("notificationclick", (event) => {
   event.waitUntil((async () => {
     const open = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     for (const c of open) {
-      if (c.url.startsWith(self.registration.scope)) { await c.focus(); return; }
+      if (c.url.startsWith(self.registration.scope)) {
+        // Already open: bring it forward, and on to the screen the reminder is about.
+        await c.focus();
+        if (c.url !== url && typeof c.navigate === "function") await c.navigate(url).catch(() => null);
+        return;
+      }
     }
     await self.clients.openWindow(url);
   })());
