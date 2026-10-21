@@ -9,8 +9,8 @@ self.addEventListener("push", (event) => {
   try { note = event.data ? event.data.json() : {}; } catch (e) { note = { body: event.data && event.data.text() }; }
   event.waitUntil(self.registration.showNotification(note.title || "Just Talk Studios", {
     body: note.body || "",
-    icon: "icons/icon-192.png",
-    badge: "icons/icon-192.png",
+    icon: "icons/mic-192.png",
+    badge: "icons/mic-192.png",
     data: { url: note.url || "./" },
   }));
 });
